@@ -1,4 +1,3 @@
-extern crate libc;
 #[macro_use] extern crate bitflags;
 
 use std::os::unix::io::AsRawFd;
@@ -6,11 +5,14 @@ use std::fs::File;
 use std::path::Path;
 use std::io::{Result, Error};
 use std::fmt;
-
-use libc::{c_int, c_ulong};
+use std::os::raw::{c_int, c_ulong};
 
 const FS_IOC_FIEMAP: c_ulong = 0xC020660B;
 const PAGESIZE: usize = 8;
+
+extern {
+  fn ioctl(fd: ::c_int, request: ::c_ulong, ...) -> ::c_int;
+}
 
 pub struct Fiemap {
   _file: File,
@@ -44,14 +46,16 @@ impl Fiemap {
     }
 
     let rc = unsafe {
-      libc::ioctl(self.fd, FS_IOC_FIEMAP, req as *mut _)
+      ioctl(self.fd, FS_IOC_FIEMAP, req as *mut _)
     };
     if rc != 0 {
       Err(Error::last_os_error())
     } else {
       self.cur_idx = 0;
       self.size = req.fm_mapped_extents;
-      if req.fm_extents[req.fm_mapped_extents as usize -1].fe_flags
+      if req.fm_mapped_extents == 0 {
+        self.ended = true;
+      } else if req.fm_extents[req.fm_mapped_extents as usize -1].fe_flags
         .contains(FiemapExtentFlags::LAST) {
           self.ended = true;
       }

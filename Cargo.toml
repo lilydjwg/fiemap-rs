@@ -2,4 +2,8 @@
 
 members = [
   "fiemap",
+  "fraghist",
 ]
+
+[profile.release]
+lto = true
