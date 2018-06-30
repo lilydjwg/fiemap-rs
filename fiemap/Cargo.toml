@@ -2,6 +2,10 @@
 name = "fiemap"
 version = "0.1.0"
 authors = ["lilydjwg <lilydjwg@gmail.com>"]
+description = "call ioctl FIEMAP on files with ease"
+license = "BSD-2-Clause"
+documentation = "https://docs.rs/fiemap"
+repository = "https://github.com/lilydjwg/fiemap-rs"
 
 [dependencies]
-bitflags = "*"
+bitflags = "1"
