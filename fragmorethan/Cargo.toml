@@ -1,0 +1,8 @@
+[package]
+name = "fragmorethan"
+version = "0.1.0"
+authors = ["lilydjwg <lilydjwg@gmail.com>"]
+
+[dependencies]
+fiemap = { path = "../fiemap" }
+walkdir = "*"
