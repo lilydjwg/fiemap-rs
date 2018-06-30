@@ -3,6 +3,7 @@
 members = [
   "fiemap",
   "fraghist",
+  "fragmorethan",
 ]
 
 [profile.release]

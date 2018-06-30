@@ -20,6 +20,14 @@ dependencies = [
 ]
 
 [[package]]
+name = "fragmorethan"
+version = "0.1.0"
+dependencies = [
+ "fiemap 0.1.0",
+ "walkdir 2.1.4 (registry+https://github.com/rust-lang/crates.io-index)",
+]
+
+[[package]]
 name = "histo"
 version = "0.1.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"

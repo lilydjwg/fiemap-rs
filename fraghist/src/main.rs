@@ -24,22 +24,18 @@ fn process_entry(histogram: &mut Histogram, entry: &walkdir::DirEntry) -> Result
 
 fn process<P: AsRef<Path> + Display>(dir: P) {
   let mut histogram = Histogram::with_buckets(10);
-  let mut errored = false;
 
   for entry in WalkDir::new(dir.as_ref()) {
     match entry {
       Ok(entry) => {
         if let Err(e) = process_entry(&mut histogram, &entry) {
           eprintln!("{}: Error {:?}", entry.path().display(), e);
-          errored = true;
         }
       },
       Err(e) =>  eprintln!("{}: Error {:?}", dir, e),
     }
   }
-  if !errored {
-    println!("{}:\n{}\n", dir, histogram);
-  }
+  println!("{}:\n{}\n", dir, histogram);
 }
 
 fn main() {
