@@ -20,9 +20,9 @@ fn process_entry(entry: &walkdir::DirEntry) -> Result<usize, Error> {
 }
 
 fn process<P: AsRef<Path> + Display>(dir: P, gt: usize) {
-
   for entry in WalkDir::new(dir.as_ref()) {
     match entry {
+      Err(e) => eprintln!("{}: Error {:?}", dir, e),
       Ok(entry) => {
         match process_entry(&entry) {
           Err(e) => eprintln!("{}: Error {:?}", entry.path().display(), e),
@@ -33,7 +33,6 @@ fn process<P: AsRef<Path> + Display>(dir: P, gt: usize) {
           },
         }
       },
-      Err(e) =>  eprintln!("{}: Error {:?}", dir, e),
     }
   }
 }
