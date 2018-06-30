@@ -5,6 +5,7 @@ use std::os::unix::io::AsRawFd;
 use std::fs::File;
 use std::path::Path;
 use std::io::{Result, Error};
+use std::fmt;
 
 use libc::{c_int, c_ulong};
 
@@ -20,6 +21,7 @@ pub struct Fiemap {
   ended: bool,
 }
 
+/// Get fiemap for the path and return an iterator of extents
 pub fn fiemap<P: AsRef<Path>>(filepath: P) -> Result<Fiemap> {
   let file = File::open(filepath)?;
   let fd = file.as_raw_fd();
@@ -59,7 +61,7 @@ impl Fiemap {
 }
 
 impl Iterator for Fiemap {
-  type Item = Result<C_fiemap_extent>;
+  type Item = Result<FiemapExtent>;
   fn next(&mut self) -> Option<Self::Item> {
     if self.cur_idx >= self.size as usize {
       if self.ended {
@@ -85,7 +87,7 @@ struct C_fiemap {
   fm_mapped_extents: u32,
   fm_extent_count: u32,
   fm_reserved: u32,
-  fm_extents: [C_fiemap_extent; PAGESIZE],
+  fm_extents: [FiemapExtent; PAGESIZE],
 }
 
 impl C_fiemap {
@@ -97,14 +99,14 @@ impl C_fiemap {
       fm_mapped_extents: 0,
       fm_extent_count: PAGESIZE as u32,
       fm_reserved: 0,
-      fm_extents: [C_fiemap_extent::new(); PAGESIZE],
+      fm_extents: [FiemapExtent::new(); PAGESIZE],
     }
   }
 }
 
 #[repr(C)]
-#[derive(Copy, Clone, Debug)]
-pub struct C_fiemap_extent {
+#[derive(Copy, Clone)]
+pub struct FiemapExtent {
   pub fe_logical: u64,
   pub fe_physical: u64,
   pub fe_length: u64,
@@ -113,7 +115,7 @@ pub struct C_fiemap_extent {
   fe_reserved: [u32; 3],
 }
 
-impl C_fiemap_extent {
+impl FiemapExtent {
   fn new() -> Self {
     Self {
       fe_logical: 0,
@@ -123,6 +125,18 @@ impl C_fiemap_extent {
       fe_flags: FiemapExtentFlags::empty(),
       fe_reserved: [0; 3],
     }
+  }
+}
+
+impl fmt::Debug for FiemapExtent {
+  fn fmt(&self, f: &mut fmt::Formatter)
+    -> std::result::Result<(), fmt::Error> {
+    f.debug_struct("FiemapExtent")
+      .field("fe_logical", &self.fe_logical)
+      .field("fe_physical", &self.fe_physical)
+      .field("fe_length", &self.fe_length)
+      .field("fe_flags", &self.fe_flags)
+      .finish()
   }
 }
 
