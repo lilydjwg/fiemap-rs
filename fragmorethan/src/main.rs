@@ -21,18 +21,24 @@ fn process_entry(entry: &walkdir::DirEntry) -> Result<usize, Error> {
 
 fn process<P: AsRef<Path> + Display>(dir: P, gt: usize) {
   for entry in WalkDir::new(dir.as_ref()) {
-    match entry {
-      Err(e) => eprintln!("{}: Error {:?}", dir, e),
-      Ok(entry) => {
-        match process_entry(&entry) {
-          Err(e) => eprintln!("{}: Error {:?}", entry.path().display(), e),
-          Ok(count) => {
-            if count > gt {
-              println!("{}: {}", entry.path().display(), count);
-            }
-          },
-        }
+    let entry = match entry {
+      Ok(entry) => entry,
+      Err(e) => {
+        eprintln!("{}: Error {:?}", dir, e);
+        continue;
       },
+    };
+
+    let count = match process_entry(&entry) {
+      Ok(count) => count,
+      Err(e) => {
+        eprintln!("{}: Error {:?}", entry.path().display(), e);
+        continue;
+      },
+    };
+        
+    if count > gt {
+      println!("{}: {}", entry.path().display(), count);
     }
   }
 }

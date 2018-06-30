@@ -26,13 +26,15 @@ fn process<P: AsRef<Path> + Display>(dir: P) {
   let mut histogram = Histogram::with_buckets(10);
 
   for entry in WalkDir::new(dir.as_ref()) {
-    match entry {
-      Ok(entry) => {
-        if let Err(e) = process_entry(&mut histogram, &entry) {
-          eprintln!("{}: Error {:?}", entry.path().display(), e);
-        }
+    let entry = match entry {
+      Ok(entry) => entry,
+      Err(e) => {
+        eprintln!("{}: Error {:?}", dir, e);
+        continue;
       },
-      Err(e) =>  eprintln!("{}: Error {:?}", dir, e),
+    };
+    if let Err(e) = process_entry(&mut histogram, &entry) {
+      eprintln!("{}: Error {:?}", entry.path().display(), e);
     }
   }
   println!("{}:\n{}\n", dir, histogram);
