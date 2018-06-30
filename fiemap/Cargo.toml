@@ -1,0 +1,8 @@
+[package]
+name = "fiemap"
+version = "0.1.0"
+authors = ["lilydjwg <lilydjwg@gmail.com>"]
+
+[dependencies]
+libc = "*"
+bitflags = "*"
