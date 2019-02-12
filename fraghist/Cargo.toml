@@ -5,5 +5,5 @@ authors = ["lilydjwg <lilydjwg@gmail.com>"]
 
 [dependencies]
 fiemap = { path = "../fiemap" }
-walkdir = "*"
+walkdir = "2.2.2"
 histo = "*"
