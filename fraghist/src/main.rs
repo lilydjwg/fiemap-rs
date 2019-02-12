@@ -25,7 +25,8 @@ fn process_entry(histogram: &mut Histogram, entry: &walkdir::DirEntry) -> Result
 fn process<P: AsRef<Path> + Display>(dir: P) {
   let mut histogram = Histogram::with_buckets(10);
 
-  for entry in WalkDir::new(dir.as_ref()).same_file_system(true) {
+  for entry in WalkDir::new(dir.as_ref())
+    .same_file_system(true) {
     let entry = match entry {
       Ok(entry) => entry,
       Err(e) => {

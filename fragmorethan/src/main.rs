@@ -20,7 +20,8 @@ fn process_entry(entry: &walkdir::DirEntry) -> Result<usize, Error> {
 }
 
 fn process<P: AsRef<Path> + Display>(dir: P, gt: usize) {
-  for entry in WalkDir::new(dir.as_ref()) {
+  for entry in WalkDir::new(dir.as_ref())
+    .same_file_system(true) {
     let entry = match entry {
       Ok(entry) => entry,
       Err(e) => {
