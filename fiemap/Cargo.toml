@@ -6,6 +6,7 @@ description = "call ioctl FIEMAP on files with ease"
 license = "BSD-2-Clause"
 documentation = "https://docs.rs/fiemap"
 repository = "https://github.com/lilydjwg/fiemap-rs"
+edition = "2018"
 
 [dependencies]
 bitflags = "1"

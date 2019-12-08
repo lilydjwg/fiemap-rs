@@ -1,5 +1,3 @@
-#[macro_use] extern crate bitflags;
-
 use std::os::unix::io::AsRawFd;
 use std::fs::File;
 use std::path::Path;
@@ -11,7 +9,7 @@ const FS_IOC_FIEMAP: c_ulong = 0xC020660B;
 const PAGESIZE: usize = 8;
 
 extern {
-  fn ioctl(fd: ::c_int, request: ::c_ulong, ...) -> ::c_int;
+  fn ioctl(fd: c_int, request: c_ulong, ...) -> c_int;
 }
 
 pub struct Fiemap {
@@ -149,7 +147,7 @@ impl fmt::Debug for FiemapExtent {
   }
 }
 
-bitflags! {
+bitflags::bitflags! {
     pub struct FiemapExtentFlags: u32 {
       #[doc = "Last extent in file."]
       const LAST           = 0x00000001; 
