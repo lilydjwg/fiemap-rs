@@ -75,6 +75,11 @@ impl Iterator for Fiemap {
       if let Err(e) = self.get_extents() {
         return Some(Err(e));
       }
+
+      if self.size == 0 {
+        // we didn't get any more extents
+        return None;
+      }
     }
 
     let idx = self.cur_idx;

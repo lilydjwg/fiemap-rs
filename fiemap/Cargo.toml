@@ -1,6 +1,6 @@
 [package]
 name = "fiemap"
-version = "0.1.0"
+version = "0.1.1"
 authors = ["lilydjwg <lilydjwg@gmail.com>"]
 description = "call ioctl FIEMAP on files with ease"
 license = "BSD-2-Clause"
