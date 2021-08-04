@@ -51,10 +51,8 @@ impl Fiemap {
     } else {
       self.cur_idx = 0;
       self.size = req.fm_mapped_extents;
-      if req.fm_mapped_extents == 0 {
-        self.ended = true;
-      } else if req.fm_extents[req.fm_mapped_extents as usize -1].fe_flags
-        .contains(FiemapExtentFlags::LAST) {
+      if req.fm_mapped_extents == 0 ||
+        req.fm_extents[req.fm_mapped_extents as usize -1].fe_flags.contains(FiemapExtentFlags::LAST) {
           self.ended = true;
       }
       Ok(())

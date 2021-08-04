@@ -1,7 +1,3 @@
-extern crate fiemap;
-extern crate walkdir;
-extern crate histo;
-
 use std::env::args;
 use std::path::Path;
 use std::fmt::Display;
