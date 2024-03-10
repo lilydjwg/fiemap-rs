@@ -146,28 +146,29 @@ impl fmt::Debug for FiemapExtent {
 }
 
 bitflags::bitflags! {
-    pub struct FiemapExtentFlags: u32 {
-      #[doc = "Last extent in file."]
-      const LAST           = 0x00000001; 
-      #[doc = "Data location unknown."]
-      const UNKNOWN        = 0x00000002; 
-      #[doc = "Location still pending. Sets EXTENT_UNKNOWN."]
-      const DELALLOC       = 0x00000004; 
-      #[doc = "Data can not be read while fs is unmounted"]
-      const ENCODED        = 0x00000008; 
-      #[doc = "Data is encrypted by fs. Sets EXTENT_NO_BYPASS."]
-      const DATA_ENCRYPTED = 0x00000080; 
-      #[doc = "Extent offsets may not be block aligned."]
-      const NOT_ALIGNED    = 0x00000100; 
-      #[doc = "Data mixed with metadata. Sets EXTENT_NOT_ALIGNED."]
-      const DATA_INLINE    = 0x00000200; 
-      #[doc = "Multiple files in block. Sets EXTENT_NOT_ALIGNED."]
-      const DATA_TAIL      = 0x00000400; 
-      #[doc = "Space allocated, but no data (i.e. zero)."]
-      const UNWRITTEN      = 0x00000800; 
-      #[doc = "File does not natively support extents. Result merged for efficiency."]
-      const MERGED         = 0x00001000; 
-      #[doc = "Space shared with other files."]
-      const SHARED         = 0x00002000; 
-    }
+  #[derive(Copy, Clone, Debug)]
+  pub struct FiemapExtentFlags: u32 {
+    #[doc = "Last extent in file."]
+    const LAST           = 0x00000001; 
+    #[doc = "Data location unknown."]
+    const UNKNOWN        = 0x00000002; 
+    #[doc = "Location still pending. Sets EXTENT_UNKNOWN."]
+    const DELALLOC       = 0x00000004; 
+    #[doc = "Data can not be read while fs is unmounted"]
+    const ENCODED        = 0x00000008; 
+    #[doc = "Data is encrypted by fs. Sets EXTENT_NO_BYPASS."]
+    const DATA_ENCRYPTED = 0x00000080; 
+    #[doc = "Extent offsets may not be block aligned."]
+    const NOT_ALIGNED    = 0x00000100; 
+    #[doc = "Data mixed with metadata. Sets EXTENT_NOT_ALIGNED."]
+    const DATA_INLINE    = 0x00000200; 
+    #[doc = "Multiple files in block. Sets EXTENT_NOT_ALIGNED."]
+    const DATA_TAIL      = 0x00000400; 
+    #[doc = "Space allocated, but no data (i.e. zero)."]
+    const UNWRITTEN      = 0x00000800; 
+    #[doc = "File does not natively support extents. Result merged for efficiency."]
+    const MERGED         = 0x00001000; 
+    #[doc = "Space shared with other files."]
+    const SHARED         = 0x00002000; 
+  }
 }

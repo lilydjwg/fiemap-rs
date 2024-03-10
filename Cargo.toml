@@ -5,6 +5,7 @@ members = [
   "fraghist",
   "fragmorethan",
 ]
+resolver = "2"
 
 [profile.release]
 lto = true
