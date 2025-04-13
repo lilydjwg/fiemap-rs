@@ -1,14 +1,14 @@
 use std::os::unix::io::AsRawFd;
 use std::fs::File;
 use std::path::Path;
-use std::io::{Result, Error};
+use std::io::{Result, Error, ErrorKind};
 use std::fmt;
 use std::os::raw::{c_int, c_ulong};
 
 const FS_IOC_FIEMAP: c_ulong = 0xC020660B;
 const PAGESIZE: usize = 8;
 
-extern {
+unsafe extern "C" {
   fn ioctl(fd: c_int, request: c_ulong, ...) -> c_int;
 }
 
@@ -68,7 +68,11 @@ impl Iterator for Fiemap {
         return None;
       }
 
-      if let Err(e) = self.get_extents() {
+      while let Err(e) = self.get_extents() {
+        if e.kind() == ErrorKind::Interrupted {
+          continue;
+        }
+        self.ended = true;
         return Some(Err(e));
       }
 
@@ -99,7 +103,7 @@ impl C_fiemap {
   fn new() -> Self {
     Self {
       fm_start: 0,
-      fm_length: u64::max_value(),
+      fm_length: u64::MAX,
       fm_flags: 0,
       fm_mapped_extents: 0,
       fm_extent_count: PAGESIZE as u32,
