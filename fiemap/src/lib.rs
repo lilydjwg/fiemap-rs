@@ -1,9 +1,8 @@
 use std::fmt;
 use std::fs::File;
 use std::io::{Error, ErrorKind, Result};
-use std::os::fd::FromRawFd;
+use std::os::fd::{AsFd, AsRawFd};
 use std::os::raw::{c_int, c_ulong};
-use std::os::unix::io::AsRawFd;
 use std::path::Path;
 
 const FS_IOC_FIEMAP: c_ulong = 0xC020660B;
@@ -14,8 +13,8 @@ unsafe extern "C" {
 }
 
 #[derive(Debug)]
-pub struct Fiemap {
-    _file: File,
+pub struct Fiemap<T> {
+    _file: T,
     fd: c_int,
     fiemap: C_fiemap,
     cur_idx: usize,
@@ -26,36 +25,34 @@ pub struct Fiemap {
 /// Get fiemap for the path and return an iterator of extents.
 ///
 /// Same as [`Fiemap::new_from_path`].
-pub fn fiemap<P: AsRef<Path>>(filepath: P) -> Result<Fiemap> {
+pub fn fiemap<P: AsRef<Path>>(filepath: P) -> Result<Fiemap<File>> {
     Fiemap::new_from_path(filepath)
 }
 
-impl Fiemap {
-    /// Creates a new [`Self`] from any type that implements [`AsFd`].
-    ///
-    /// The lifetime of the underlying file is tied to the lifetime of
-    /// the [`Self`] instance, as the file descriptor will be closed
-    /// after the instance of [`Self`] is dropped.
-    pub fn new(fd: impl AsRawFd) -> Self {
-        let raw_fd = fd.as_raw_fd();
-        let file = unsafe { File::from_raw_fd(raw_fd) };
+impl Fiemap<File> {
+    /// Creates a new [`Fiemap`] from a file path, opening the file in
+    /// read-only mode. See [`File::open`] and [`Fiemap::new`].
+    pub fn new_from_path(filepath: impl AsRef<Path>) -> Result<Self> {
+        let file = File::open(filepath)?;
+
+        Ok(Self::new(file))
+    }
+}
+
+impl<T: AsFd> Fiemap<T> {
+    /// Creates a new [`Fiemap`] from an [`AsFd`] object, which could be [`File`]
+    /// or its reference.
+    pub fn new(fd: T) -> Self {
+        let raw_fd = fd.as_fd().as_raw_fd();
 
         Self {
-            _file: file,
+            _file: fd,
             fd: raw_fd,
             fiemap: C_fiemap::new(),
             cur_idx: 0,
             size: 0,
             ended: false,
         }
-    }
-
-    /// Creates a new [`Self`] from a file path, opening the file in
-    /// read-only mode. See [`std::fs::File::open`] and [`Self::new`].
-    pub fn new_from_path(filepath: impl AsRef<Path>) -> Result<Fiemap> {
-        let file = File::open(filepath)?;
-
-        Ok(Self::new(file))
     }
 
     fn get_extents(&mut self) -> Result<()> {
@@ -83,7 +80,7 @@ impl Fiemap {
     }
 }
 
-impl Iterator for Fiemap {
+impl<T: AsFd> Iterator for Fiemap<T> {
     type Item = Result<FiemapExtent>;
     fn next(&mut self) -> Option<Self::Item> {
         if self.cur_idx >= self.size as usize {
