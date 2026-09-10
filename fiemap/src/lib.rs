@@ -16,6 +16,7 @@ unsafe extern "C" {
 pub struct Fiemap<T> {
     _file: T,
     fd: c_int,
+    flags: FiemapFlags,
     fiemap: C_fiemap,
     cur_idx: usize,
     size: u32,
@@ -43,11 +44,18 @@ impl<T: AsFd> Fiemap<T> {
     /// Creates a new [`Fiemap`] from an [`AsFd`] object, which could be [`File`]
     /// or its reference.
     pub fn new(fd: T) -> Self {
+        Self::with_flags(fd, FiemapFlags::empty())
+    }
+
+    /// Same as [`Fiemap::new`], but sends `flags` to the kernel in the
+    /// `fm_flags` field of the ioctl request.
+    pub fn with_flags(fd: T, flags: FiemapFlags) -> Self {
         let raw_fd = fd.as_fd().as_raw_fd();
 
         Self {
             _file: fd,
             fd: raw_fd,
+            flags,
             fiemap: C_fiemap::new(),
             cur_idx: 0,
             size: 0,
@@ -57,6 +65,8 @@ impl<T: AsFd> Fiemap<T> {
 
     fn get_extents(&mut self) -> Result<()> {
         let req = &mut self.fiemap;
+        // fm_flags is in/out: filesystems clear bits they consumed (e.g. XATTR).
+        req.fm_flags = self.flags.bits();
         if self.size != 0 {
             let last = req.fm_extents[self.size as usize - 1];
             req.fm_start = last.fe_logical + last.fe_length;
@@ -167,6 +177,16 @@ impl fmt::Debug for FiemapExtent {
             .field("fe_flags", &self.fe_flags)
             .finish()
     }
+}
+
+bitflags::bitflags! {
+  #[derive(Copy, Clone, Debug)]
+  pub struct FiemapFlags: u32 {
+    #[doc = "Sync file data before map."]
+    const SYNC  = 0x00000001;
+    #[doc = "Map extended attribute tree."]
+    const XATTR = 0x00000002;
+  }
 }
 
 bitflags::bitflags! {
